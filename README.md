@@ -12,4 +12,5 @@ This folder contains the scripts used to evaluate the performence of the Helper_
 The data collected throughout the course of this project can be found in the following OneDrive directory:
 https://1drv.ms/f/s!AlFk0WpIKSRrhc53aZhYCQLVo0pb8w?e=aegZZE
 
-
+## Help 
+For any help or clarity needed regarding any of the information on this repository, contact me at danmax.jones@gmail.com.
