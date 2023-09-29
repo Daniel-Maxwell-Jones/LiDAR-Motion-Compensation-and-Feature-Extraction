@@ -1,6 +1,14 @@
+%{
+This function separates a given point cloud into segmented objects based
+off of Euclidean distance. Each of these objects is colour coded and
+plotted.
+%}
+%Author: Daniel Jones
+%Date: 29th September 2023
+
 function [labelsOut,ptCloudOut] = getClusters(ptCloud)
    %====================================================================
-
+    %{
     %==============================================================
     %Reducing area of interest by inspection
     roi = [0,5,-2,2,-inf,1];
@@ -9,6 +17,8 @@ function [labelsOut,ptCloudOut] = getClusters(ptCloud)
 
     ptCloud = select(ptCloud,indices);
     %==============================================================
+
+    %}
     %Removing the floor
 
     %figure;

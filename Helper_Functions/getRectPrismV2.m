@@ -1,3 +1,11 @@
+%{
+This function takes in a point cloud and calculates the size parameters of
+a desired object within the point cloud based off a given label from a list
+of labels.
+%}
+%Author: Daniel Jones
+%Date: 29th September 2023
+
 function dims = getRectPrismV2(ptCloud, numNeighbors, labels, labelIn)
 
     
