@@ -1,4 +1,4 @@
-function [times, manyPtClouds, ptCloudMerge] = ptCloudCell(bagPath,startIndex,numFrames,step)
+function [manyPtClouds, ptCloudMerge] = ptCloudCell(bagPath,startIndex,numFrames,step)
 
     ptCloudBag = rosbag(bagPath);
     ptCloudMsgs = select(ptCloudBag,'Topic','livox/lidar');
