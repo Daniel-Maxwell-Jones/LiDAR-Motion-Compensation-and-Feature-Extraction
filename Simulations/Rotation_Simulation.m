@@ -1,7 +1,7 @@
-
+addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions');
 load('myFilter')
 sampling_rate = 200;
-amplitiude = 1;
+amplitiude = 45;
 duration = 10;
 freq = 0.2;
 
@@ -27,9 +27,6 @@ angY = transpose(angY);
 angX = zeros(size(t_IMU,2),1);
 angZ = zeros(size(t_IMU,2),1);
 
-figure
-plot(t_IMU,angularVelZ)
-title('Angular Velocity')
 
 
 positions = [angX,angX,angX]; %All zeros
@@ -38,11 +35,7 @@ angles = [angX,angY,angZ];
 
 %angZInt = cumtrapz(t,angularVelZ);
 
-figure
-plot(t_IMU,angZInt)
-title('Position')
-hold on 
-plot(t_IMU,angY)
+
 %======================================================================
 %Creating Scene
 rotations = [0 0 0; 0 0 30; 0 0 67; 0 0 21; 0 0 70];
@@ -57,9 +50,40 @@ heights = [0.5 0.3 0.3 0.2 0.1];
 
 ptCloud = cubeScene(lengths,breadths,heights,translations,rotations);
 
-manyPtClouds = createMotionFrames(ptCloud,positions,angles, t_IMU);
+[manyPtClouds, t_ptCloud] = createMotionFrames(ptCloud,positions,angles, t_IMU);
 
 %=========================================================================================
+
+frame1 = 1;
+
+frame2 = 2;
+
+figure
+pcshow(manyPtClouds{1})
+
+hold on
+
+pcshow(manyPtClouds{2})
+
+%Get the IMU positions related to the two point cloud frames
+
+imu1 = angles(find(t_IMU == t_ptCloud(frame1)),:);
+
+imu2 = angles(find(t_IMU == t_ptCloud(frame2)),:);
+
+imuDiff = imu2-imu1;
+
+tform = rigidtform3d(imuDiff,[0 0 0]);
+invtform = invert(tform);
+ptCloudRotated = pctransform(manyPtClouds{frame2},invtform);
+
+
+
+
+figure
+
+pcshowpair(ptCloudRotated,manyPtClouds{frame1})
+
 
 
 
@@ -70,7 +94,7 @@ manyPtClouds = createMotionFrames(ptCloud,positions,angles, t_IMU);
 %This function takes in a point clouds and simulates movement of the LiDAR
 %sensor
 function [rotatedPtClouds, t_ptCloud] = createMotionFrames(ptCloud, positions, angles, t_IMU)
-        rotatedPtClouds = cell(size(positions,1));
+       
         rotatedPtClouds{1} = ptCloud;
         j = 2;
         t_ptCloud(1) = t_IMU(1);
