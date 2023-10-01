@@ -11,6 +11,14 @@ addpath("C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\Data\Stat
 
 ptCloudICP = ICPCompensation(manyPtClouds,1,10);
 
+%Reducing area of interest by inspection
+roi = [0,5,-2,2,-inf,1];
+
+indices = findPointsInROI(ptCloudICP,roi);
+
+ptCloudICP = select(ptCloudICP,indices);
+
+
 [labelsOut, segmentedPtCloud]= getClusters(ptCloudICP);
 
 userLabel = 1;
@@ -23,6 +31,8 @@ while userLabel ~= 0
     if userLabel == 0 
         break;
     end
-    getRectPrismV2(segmentedPtCloud,20,labelsOut,userLabel);
+    [dims, confidence] = getRectPrismV2(segmentedPtCloud,20,labelsOut,userLabel);
+
+   sprintf("Confidence: %2f",confidence)
 
 end

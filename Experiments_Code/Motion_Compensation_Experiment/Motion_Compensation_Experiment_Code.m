@@ -55,6 +55,8 @@ while userLabel ~= 0
     if userLabel == 0 
         break;
     end
-    getRectPrismV2(segmentedPtCloud,20,labelsOut,userLabel);
+   [dims, confidence] = getRectPrismV2(segmentedPtCloud,20,labelsOut,userLabel);
+
+   sprintf("Confidence: %2f",confidence)
 
 end

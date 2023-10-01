@@ -60,6 +60,7 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, labels, labe
 
     conf2 = closeness_to_90(ang2);
 
+
     confidence = (conf1+conf2)*100/2;
     
     x = p(:,1);
