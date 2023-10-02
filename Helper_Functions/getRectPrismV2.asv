@@ -213,10 +213,9 @@ function dims = cubedims(ptCloud, corners)
     sprintf('Breadth: %.2f \nLength: %.2f \nHeight: %.2f \nArea1: %.2f \nArea2: %.2f \nArea3: %.2f \nVolume: %.2f' , dims(1), dims(2), dims(3),dims(4), dims(5),dims(6),dims(7))
     
 end
-%==============================================================
-%Turns the indices of the corners into xyz coordinates
-function vertices = verticesPlot(ptCloud, corners)
 
+function vertices = verticesPlot(ptCloud, corners)
+    
     vertices = zeros(8,3);
     vertices(1,:) = ptCloud.Location(corners(1),:);
     vertices(1,3) = ptCloud.Location(corners(5),3);

@@ -20,10 +20,9 @@ accX = zeros(1,length);
 accY = zeros(1,length);
 accZ = zeros(1,length);
 
-time = zeros(length,1);
+timeOmegaY = zeros(length,1);
 
-%Obtaining accelerations, angular velocites and time stamps and storing it
-%in a separate file.
+%Obtaining accelerations, angular velocites and 
 
 for i = 1:length
     
@@ -37,9 +36,9 @@ for i = 1:length
     accY(i) = IMUReading{1}.LinearAcceleration.Y;
     accZ(i) = IMUReading{1}.LinearAcceleration.Z;
     
-    time(i) = IMUReading{1}.Header.Stamp.Sec + IMUReading{1}.Header.Stamp.Nsec * 1e-9;
+    timeOmegaY(i) = IMUReading{1}.Header.Stamp.Sec + IMUReading{1}.Header.Stamp.Nsec * 1e-9;
 
 end
 
 
-save('2023-09-25-13-27-08.mat', 'timeO','accX','accY','accZ','omegaX','omegaY','omegaZ');
+save('2023-09-25-13-27-08.mat', 'timeOmegaY','accX','accY','accZ','omegaX','omegaY','omegaZ');
