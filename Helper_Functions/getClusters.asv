@@ -39,7 +39,7 @@ function [labelsOut,ptCloudOut] = getClusters(ptCloud)
     [labels,numClusters] = pcsegdist(remainPtCloud,minDistance, 'NumClusterPoints',minPoints);
 
 
-    %Plotting and colour each of the segmented objects
+    
 
     idxValidPoints = find(labels);
     labelColorIndex = labels(idxValidPoints);

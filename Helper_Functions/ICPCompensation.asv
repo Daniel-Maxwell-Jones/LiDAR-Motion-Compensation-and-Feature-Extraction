@@ -8,9 +8,8 @@ combine these frames using purely ICP registration.
 %Date: 2nd October 2023
 
 function combinedptCloud = ICPCompensation(manyPtClouds, startIndex, numFrames)
-    
-%Setting each of these variables to empty arrays to trigger initial
- %conditions in following for loops
+    %Setting each of these arrays to empty arrays to trigger initial
+    %conditions in following for loops
     combined = [];  
     tform = []; 
 
@@ -25,14 +24,14 @@ function combinedptCloud = ICPCompensation(manyPtClouds, startIndex, numFrames)
                 [tform, ptCloudtform] = pcregistericp(manyPtClouds{i},combined,"Metric","planeToPlane"); 
     
     
-            else %Use the previous transformation to peform ICP registration between the combined point cloud and the next frame
+            else %Use the previous transformation to pef
     
                 [tform, ptCloudtform] = pcregistericp(manyPtClouds{i},combined,"Metric","planeToPlane","InitialTransform",tform); 
                   
     
             end
-                
-            combined = pcmerge(ptCloudtform, combined, 0.01); %Add the latest frame to the combined point cloud
+    
+            combined = pcmerge(ptCloudtform, combined, 0.01);
             
     
         end

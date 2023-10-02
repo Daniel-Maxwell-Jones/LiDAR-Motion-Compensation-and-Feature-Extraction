@@ -1,8 +1,16 @@
+%{
+This function takes in two vectors in a 2D plane and returns the angle
+between them. each xi and yi represent the x and y components of the
+vectors.
+%}
+%Author: Daniel Jones
+%Date: 2nd October 2023
+
 function angle = angBetweenVectors(x1, x2, y1, y2)
         
          
-    A = [x1, y1];  % Replace x1 and y1 with the components of vector A
-    B = [x2, y2];  % Replace x2 and y2 with the components of vector B
+    A = [x1, y1]; 
+    B = [x2, y2];  
     
     % Calculate the dot product
     dot_product = dot(A, B);
