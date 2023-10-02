@@ -55,13 +55,19 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, labels, labe
     
     ang1 = angBetweenVectors((p(1,1)-p(5,1)), (p(1,1)-p(7,1)), (p(1,2) - p(5,2)), (p(1,2)-p(7,2)));
     ang2 = angBetweenVectors((p(3,1)-p(5,1)), (p(3,1)-p(7,1)), (p(3,2) - p(5,2)), (p(3,2) - p(7,2)));
+    ang3 = angBetweenVectors((p(1,1)-p(7,1)),(p(3,1)-p(7,1)),(p(1,2)-p(7,2)),(p(3,2) - p(7,2)));
+    ang4 = angBetweenVectors((p(1,1) - p(5,1)),(p(3,1) - p(5,1)),(p(1,2)-p(5,2)),(p(3,2)-p(5,2)));
     
     conf1 = closeness_to_90(ang1);
 
     conf2 = closeness_to_90(ang2);
 
+    conf3 = closeness_to_90(ang3);
 
-    confidence = (conf1+conf2)*100/2;
+    conf4 = closeness_to_90(ang4);
+
+
+    confidence = (conf1+conf2+conf3+conf4)*100/4;
     
     x = p(:,1);
     y = p(:,2);
