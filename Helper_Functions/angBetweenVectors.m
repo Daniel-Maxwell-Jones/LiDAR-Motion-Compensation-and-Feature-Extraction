@@ -25,7 +25,7 @@ function angle = angBetweenVectors(x1, x2, y1, y2)
     % Convert the angle to degrees
     angle_degrees = angle_radians * (180 / pi);
     
-    fprintf('The angle between A and B is %.2f degrees\n', angle_degrees);
+
     angle = angle_degrees;
 
 end

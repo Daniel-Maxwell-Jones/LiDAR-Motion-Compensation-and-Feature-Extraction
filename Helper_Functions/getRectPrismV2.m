@@ -6,23 +6,33 @@ of labels.
 %Author: Daniel Jones
 %Date: 29th September 2023
 
-function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, labels, labelIn)
+function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, threshold ,labels, labelIn)
 
+    
+    
     %Select the cluster corresponding to the users input label
     validIndex = find(labels == labelIn);
     sepCluster = select(ptCloud,validIndex);
     validCluster = sepCluster;
     
-    sepCluster = pcdownsample(sepCluster,"gridAverage",0.01);
+    %sepCluster = pcdownsample(sepCluster,"gridAverage",0.01);
     
    
     %apply a filter to get rid of outliers
-    sepCluster = pcdenoise(sepCluster,"NumNeighbors",numNeighbors,"Threshold",1);
+    sepCluster = pcdenoise(sepCluster,"NumNeighbors",numNeighbors,"Threshold",threshold);
     
     %show the effectiveness of filtering by showing before and after
     figure
     pcshowpair(validCluster,sepCluster,"MarkerSize",50)
+    ax = gca;
     
+    % Set the axis line width (make them thicker)
+    ax.LineWidth = 2; % Change this value to your desired line width
+    
+    % Optionally, set other axis properties, such as labels, titles, etc.
+    xlabel('X-axis');
+    ylabel('Y-axis');
+    zlabel('Z-axis');
     %Show the selected cluster
     figure
     pcshow(sepCluster,"MarkerSize",50)
@@ -40,9 +50,9 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, labels, labe
     plot3([p(5,1), p(6,1)], [p(5,2), p(6,2)], [p(5,3), p(6,3)], 'r', 'LineWidth', 2);
     plot3([p(7,1), p(8,1)], [p(7,2), p(8,2)], [p(7,3), p(8,3)], 'r', 'LineWidth', 2);
     
-    plot3([p(1,1), p(5,1)], [p(1,2), p(5,2)], [p(1,3), p(5,3)], 'w', 'LineWidth', 2);
-    plot3([p(1,1), p(7,1)], [p(1,2), p(7,2)], [p(1,3), p(7,3)], 'b', 'LineWidth', 2);
-    plot3([p(3,1), p(5,1)], [p(3,2), p(5,2)], [p(3,3), p(5,3)], 'g', 'LineWidth', 2);
+    plot3([p(1,1), p(5,1)], [p(1,2), p(5,2)], [p(1,3), p(5,3)], 'r', 'LineWidth', 2);
+    plot3([p(1,1), p(7,1)], [p(1,2), p(7,2)], [p(1,3), p(7,3)], 'r', 'LineWidth', 2);
+    plot3([p(3,1), p(5,1)], [p(3,2), p(5,2)], [p(3,3), p(5,3)], 'r', 'LineWidth', 2);
     plot3([p(3,1), p(7,1)], [p(3,2), p(7,2)], [p(3,3), p(7,3)], 'r', 'LineWidth', 2);
 
     plot3([p(2,1), p(6,1)], [p(2,2), p(6,2)], [p(2,3), p(6,3)], 'r', 'LineWidth', 2);
@@ -73,7 +83,15 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, labels, labe
     y = p(:,2);
     z = p(:,3);
     scatter3(x, y, z, 50,'white','filled');
+    ax = gca;
     
+    % Set the axis line width (make them thicker)
+    ax.LineWidth = 2; % Change this value to your desired line width
+    
+    % Optionally, set other axis properties, such as labels, titles, etc.
+    xlabel('X-axis');
+    ylabel('Y-axis');
+    zlabel('Z-axis');
     hold off
 
 

@@ -6,22 +6,36 @@ plotted.
 %Author: Daniel Jones
 %Date: 29th September 2023
 
-function [labelsOut,ptCloudOut] = getClusters(ptCloud)
+function [labelsOut,ptCloudOut] = getClusters(ptCloud,options)
+    arguments
+        ptCloud pointCloud
+        options.maxDistance = 0.04; %refers to the max distance that a point can be separate from a the plane
+        options.referenceVector (1,3) = [0, 0, 1]; %k unit vector in order to select ground plane
+        options.maxAngularDistance = 5; %This to allows for a little variation
+        options.minDistance = 0.04;
+        options.minPoints = 400;
+    end
+
     %====================================================================
     %Removing points in the ground plane to allow for segmentation
     %====================================================================
-    maxDistance = 0.04; %refers to the max distance that a point can be separate from a the plane
+    maxDistance = options.maxDistance; 
 
-    referenceVector = [0,0,1]; %k unit vector in order to select ground plane
+    referenceVector = options.referenceVector; 
 
-    maxAngularDistance = 5; %This to allow for a little variation
+    maxAngularDistance = options.maxAngularDistance; 
 
     MaxNumTrials = 2000;
     
     %Fit a plane using RANSAC and then removing all points in the ground
     %plane.
-    [model1,inlierIndices,outlierIndices] = pcfitplane(ptCloud,maxDistance,referenceVector,maxAngularDistance,MaxNumTrials=MaxNumTrials);
-   
+    if referenceVector == [0 0 0]
+    
+        [model1,inlierIndices,outlierIndices] = pcfitplane(ptCloud,maxDistance,MaxNumTrials=MaxNumTrials);
+    else
+
+        [model1,inlierIndices,outlierIndices] = pcfitplane(ptCloud,maxDistance,referenceVector,maxAngularDistance,MaxNumTrials=MaxNumTrials);
+    end
     remainPtCloud = select(ptCloud,outlierIndices);
     
     %====================================================================
@@ -29,10 +43,10 @@ function [labelsOut,ptCloudOut] = getClusters(ptCloud)
     %====================================================================
     %Setting the minimum distance between points before they are considered
     %part of the same object
-    minDistance = 0.04; 
+    minDistance = options.minDistance; 
     %Setting the minimum number of points in a cluster for it to be
     %considered an object
-    minPoints = 700;
+    minPoints = options.minPoints;
     
 
     %Segmenting the given point cloud based on Euclidean distance
@@ -44,7 +58,7 @@ function [labelsOut,ptCloudOut] = getClusters(ptCloud)
     idxValidPoints = find(labels);
     labelColorIndex = labels(idxValidPoints);
     remainPtCloud = select(remainPtCloud,idxValidPoints);
-    
+    %remainPtCloud = pcdenoise(remainPtCloud);
     labelsOut = labelColorIndex;
     colour = hsv(numClusters);
     
@@ -64,6 +78,16 @@ function [labelsOut,ptCloudOut] = getClusters(ptCloud)
 
     end 
     legend(legendLabels,"Color","white")
+    % Get the current axes handle
+    ax = gca;
+    
+    % Set the axis line width (make them thicker)
+    ax.LineWidth = 2; % Change this value to your desired line width
+    
+    % Optionally, set other axis properties, such as labels, titles, etc.
+    xlabel('X-axis');
+    ylabel('Y-axis');
+    zlabel('Z-axis');
     hold off
     ptCloudOut = remainPtCloud;
 end
