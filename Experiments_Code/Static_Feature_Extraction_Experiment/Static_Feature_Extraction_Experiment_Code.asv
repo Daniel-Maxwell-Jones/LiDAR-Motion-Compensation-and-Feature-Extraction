@@ -3,7 +3,7 @@
 %Author: Daniel Jones
 %Date: 29th September 2023
 tic;
-numFrames = 50;
+numFrames = 25;
 numNeighbors = 10;
 threshold = 1;
 
@@ -48,7 +48,7 @@ while userLabel ~= 0
     t_total = gettingDimensions + gettingClusters;
     
     % Specify the Excel file path
-%{
+
     excelFilePath = 'Static_Experiment_Spreadsheet1.xlsx';
 
     % Load existing data from the Excel file
@@ -67,7 +67,5 @@ while userLabel ~= 0
     
     % Write the updated data back to the Excel file
     xlswrite(excelFilePath, updatedData);
-    
-%}  
-
+      
 end
