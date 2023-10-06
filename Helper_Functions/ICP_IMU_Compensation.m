@@ -28,7 +28,7 @@ function combinedptCloud = ICP_IMU_Compensation(manyPtClouds,t_ptCloud, IMU, t_I
             initTform = IMUCompensation(t0,t_ptCloud(i),IMU,t_IMU); %Obtain the intial transfor from the IMU DATA
             
             %Now perform ICP registration using the initial transform
-            [tform, ptCloudtform] = pcregistericp(manyPtClouds{i},combined,"Metric","planeToPlane","InitialTransform",initTform); 
+            [tform, ptCloudtform] = pcregistericp(manyPtClouds{i},combined,"Metric","planeToPlane","InitialTransform",initTform,"MaxIterations",500); 
             
             %Add the latest frame to the combined point cloud
             combined = pcmerge(ptCloudtform, combined, 0.01);

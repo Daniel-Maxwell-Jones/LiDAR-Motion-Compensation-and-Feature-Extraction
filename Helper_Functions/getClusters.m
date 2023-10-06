@@ -12,7 +12,7 @@ function [labelsOut,ptCloudOut] = getClusters(ptCloud,options)
         options.maxDistance = 0.04; %refers to the max distance that a point can be separate from a the plane
         options.referenceVector (1,3) = [0, 0, 1]; %k unit vector in order to select ground plane
         options.maxAngularDistance = 5; %This to allows for a little variation
-        options.minDistance = 0.04;
+        options.minDistance = 0.04; 
         options.minPoints = 400;
     end
 
@@ -37,6 +37,7 @@ function [labelsOut,ptCloudOut] = getClusters(ptCloud,options)
         [model1,inlierIndices,outlierIndices] = pcfitplane(ptCloud,maxDistance,referenceVector,maxAngularDistance,MaxNumTrials=MaxNumTrials);
     end
     remainPtCloud = select(ptCloud,outlierIndices);
+
     
     %====================================================================
     %Clustering of Objects

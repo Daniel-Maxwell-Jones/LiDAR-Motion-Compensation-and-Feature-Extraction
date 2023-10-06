@@ -28,7 +28,7 @@ ptCloudICP = select(ptCloudMess,indices);
 
 
 
-[labelsOut, segmentedPtCloud]= getClusters(ptCloudICP);
+[labelsOut, segmentedPtCloud]= getClusters(ptCloudICP,referenceVector=[0,0,0]);
 gettingClusters = toc;
 userLabel = 1;
 

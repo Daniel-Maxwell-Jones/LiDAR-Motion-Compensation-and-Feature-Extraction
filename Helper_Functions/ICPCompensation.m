@@ -22,14 +22,13 @@ function combinedptCloud = ICPCompensation(manyPtClouds, startIndex, numFrames)
             
             if isempty(tform) %If there is no transform yet perform ICP registration without initial transform
     
-                [tform, ptCloudtform] = pcregistericp(manyPtClouds{i},combined,"Metric","planeToPlane"); 
+                [tform, ptCloudtform] = pcregistericp(manyPtClouds{i},combined,"Metric","planeToPlane","MaxIterations",300); 
     
     
             else %Use the previous transformation to peform ICP registration between the combined point cloud and the next frame
     
-                [tform, ptCloudtform] = pcregistericp(manyPtClouds{i},combined,"Metric","planeToPlane","InitialTransform",tform); 
+                [tform, ptCloudtform] = pcregistericp(manyPtClouds{i},combined,"Metric","planeToPlane","InitialTransform",tform,"MaxIterations",300); 
                   
-    
             end
                 
             combined = pcmerge(ptCloudtform, combined, 0.01); %Add the latest frame to the combined point cloud

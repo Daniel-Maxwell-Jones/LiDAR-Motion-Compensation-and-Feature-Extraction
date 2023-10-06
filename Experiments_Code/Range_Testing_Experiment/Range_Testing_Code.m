@@ -2,30 +2,34 @@
 %This is the script used to validate the feature extraction component of the algorithm from static reference frames 
 %Author: Daniel Jones
 %Date: 29th September 2023
+tic;
+numFrames = 25;
+numNeighbors = 100;
+threshold = 1;
 
 addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions')
 addpath("C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\Data\Range_Data")
 
 
-[timeStamps, manyPtClouds, ptCloudMess] = ptCloudCell("2023-09-27-10-10-22.bag",1,15,1);
+[timeStamps, manyPtClouds, ptCloudMess] = ptCloudCell("2023-09-27-10-12-45.bag",10,numFrames,1);
 
-figure
-pcshow(ptCloudMess)
+%figure
+%pcshow(ptCloudMess)
 
-ptCloudICP = ICPCompensation(manyPtClouds,1,15);
-
-%Reducing area of interest by inspection
+%ptCloudICP = ICPCompensation(manyPtClouds,1,numFrames);
 %{
-roi = [-1,5,-2,2,-inf,1];
+%Reducing area of interest by inspection
 
-indices = findPointsInROI(ptCloudICP,roi);
+roi = [1.5,5,-2,2,-inf,1];
 
-ptCloudICP = select(ptCloudICP,indices);
+indices = findPointsInROI(ptCloudMess,roi);
 
+ptCloudICP = select(ptCloudMess,indices);
 %}
 
-[labelsOut, segmentedPtCloud]= getClusters(ptCloudICP);
 
+[labelsOut, segmentedPtCloud]= getClusters(ptCloudMess,minPoints=100,maxDistance=0.15);
+gettingClusters = toc;
 userLabel = 1;
 
 while userLabel ~= 0
@@ -36,8 +40,32 @@ while userLabel ~= 0
     if userLabel == 0 
         break;
     end
-    [dims, confidence] = getRectPrismV2(segmentedPtCloud,100,labelsOut,userLabel);
+    tic;
+    [dims, confidence] = getRectPrismV2(segmentedPtCloud,numNeighbors,threshold,labelsOut,userLabel);
+    
+    sprintf("Confidence: %2f",confidence)
+    gettingDimensions = toc;
+    t_total = gettingDimensions + gettingClusters;
+    %{
+    % Specify the Excel file path
 
-   sprintf("Confidence: %2f",confidence)
+    excelFilePath = 'Static_Experiment_Spreadsheet3.xlsx';
 
+    % Load existing data from the Excel file
+    try
+        existingData = xlsread(excelFilePath);
+    catch
+        % If the file doesn't exist or is empty, create a new matrix
+        existingData = [];
+    end
+    
+    % Generate the new row of data (modify this part according to your data)
+    newRowData = [numFrames, numNeighbors, threshold, confidence, t_total, dims(1), dims(2), dims(3)]; % Example data
+    
+    % Append the new row to the existing data
+    updatedData = [existingData; newRowData];
+    
+    % Write the updated data back to the Excel file
+    xlswrite(excelFilePath, updatedData);
+    %}
 end
