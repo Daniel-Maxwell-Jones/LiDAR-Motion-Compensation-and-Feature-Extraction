@@ -36,9 +36,17 @@ function [labelsOut,ptCloudOut] = getClusters(ptCloud,options)
 
         [model1,inlierIndices,outlierIndices] = pcfitplane(ptCloud,maxDistance,referenceVector,maxAngularDistance,MaxNumTrials=MaxNumTrials);
     end
-    remainPtCloud = select(ptCloud,outlierIndices);
-
     
+    remainPtCloud = select(ptCloud,outlierIndices);
+   %{
+    figure
+    pcshow(remainPtCloud,MarkerSize=50)
+    title("Objects")
+    floor = select(ptCloud,inlierIndices);
+    figure
+    pcshow(floor,MarkerSize=50)
+    title("Floor")
+    %}
     %====================================================================
     %Clustering of Objects
     %====================================================================

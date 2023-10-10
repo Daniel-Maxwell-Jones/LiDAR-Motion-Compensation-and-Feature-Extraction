@@ -4,7 +4,7 @@
 %Date: 29th September 2023
 tic;
 numFrames = 80;
-numNeighbors = 500;
+numNeighbors = 100;
 threshold = 1;
 
 addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions')

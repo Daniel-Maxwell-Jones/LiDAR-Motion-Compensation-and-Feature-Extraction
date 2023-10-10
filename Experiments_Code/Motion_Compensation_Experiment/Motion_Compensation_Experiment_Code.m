@@ -5,14 +5,14 @@ algorithm
 %Author: Daniel Jones
 %Date: 4th October 2023
 tic;
-numFrames = 20;
-numNeighbors = 500;
+numFrames = 15;
+numNeighbors = 100;
 threshold = 1;
 
 addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\Data\Dynamic_data');
 addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions')
 load('2023-09-25-13-19-56.mat')
-[t_PointCloud,manyPtClouds,ptCloudMess] = ptCloudCell('2023-09-25-13-19-56.bag',150, numFrames, 1);
+[t_PointCloud,manyPtClouds,ptCloudMess] = ptCloudCell('2023-09-25-13-19-56.bag',55, numFrames, 1);
 t_IMU = timeOmegaY-timeOmegaY(1);
 
 t_PointCloud = t_PointCloud - t_PointCloud(1);
