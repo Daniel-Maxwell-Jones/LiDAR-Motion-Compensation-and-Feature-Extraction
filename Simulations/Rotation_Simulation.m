@@ -1,7 +1,7 @@
 addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions');
 load('myFilter')
 sampling_rate = 200;
-amplitiude = 45;
+amplitiude = 0.4;
 duration = 10;
 freq = 0.2;
 
@@ -22,11 +22,19 @@ noise = std_deviation * randn(size(angularVelZ)) + mean_noise;
 % Add the noise to the original data
 %LinearAccelerationZ = LinearAccelerationZ + noise;
 
-angY = amplitiude*sin(2*pi*freq*t_IMU);
-angY = transpose(angY);
+angularVelZ = angularVelZ + noise;
+
+figure
+plot(t_IMU,angularVelZ)
+xlabel("time [s]")
+ylabel("Angular Velocity [rad/s]")
+
+angY = cumtrapz(t_IMU,angularVelZ);
 angX = zeros(size(t_IMU,2),1);
 angZ = zeros(size(t_IMU,2),1);
 
+figure
+plot(angY)
 
 
 positions = [angX,angX,angX]; %All zeros
@@ -38,6 +46,10 @@ angles = [angX,angY,angZ];
 
 %======================================================================
 %Creating Scene
+
+densities = [1000 800 2000 400 100];
+
+error = [0 0.01 0.02 0.03 0.04];
 rotations = [0 0 0; 0 0 30; 0 0 67; 0 0 21; 0 0 70];
 
 translations = [1.5 0.5 0; 0.3 0.2 0; 1 1.5 0; 0.1 2.5 0; 2 2 0];
@@ -48,53 +60,77 @@ breadths = [0.3 0.2 0.4 0.2 0.5];
 heights = [0.5 0.3 0.3 0.2 0.1];
 
 
-ptCloud = cubeScene(lengths,breadths,heights,translations,rotations);
+ptCloud = cubeScene(lengths,breadths,heights,translations,rotations,densities,error);
 
 [manyPtClouds, t_ptCloud] = createMotionFrames(ptCloud,positions,angles, t_IMU);
 
+figure
+pcshow(pccat([manyPtClouds{1}, manyPtClouds{3}, manyPtClouds{5}, manyPtClouds{7}, manyPtClouds{9}, manyPtClouds{11}, manyPtClouds{13}, manyPtClouds{15}, manyPtClouds{17}, manyPtClouds{19}]))
+ax = gca;
+
+% Set the axis line width (make them thicker)
+ax.LineWidth = 2; % Change this value to your desired line width
+
+% Optionally, set other axis properties, such as labels, titles, etc.
+xlabel('X-axis [m]');
+ylabel('Y-axis [m]');
+zlabel('Z-axis [m]');
+
 %=========================================================================================
 
-frame1 = 1;
+ptCloudICP = ICP_IMU_Compensation(manyPtClouds,t_ptCloud,angles,t_IMU,1,10);
 
-frame2 = 2;
+[labelsOut, segmentedPtCloud]= getClusters(ptCloudICP,referenceVector=[0,0,0]);
 
-figure
-pcshow(manyPtClouds{1})
+userLabel = 1;
 
-hold on
-
-pcshow(manyPtClouds{2})
-
-%Get the IMU positions related to the two point cloud frames
-
-imu1 = angles(find(t_IMU == t_ptCloud(frame1)),:);
-
-imu2 = angles(find(t_IMU == t_ptCloud(frame2)),:);
-
-imuDiff = imu2-imu1;
-
-tform = rigidtform3d(imuDiff,[0 0 0]);
-invtform = invert(tform);
-ptCloudRotated = pctransform(manyPtClouds{frame2},invtform);
+while userLabel ~= 0
 
 
+    userLabel = input('Enter the number of the object: ');
+    
+    if userLabel == 0 
+        break;
+    end
+    tic;
+    [dims, confidence] = getRectPrismV2(segmentedPtCloud,numNeighbors,threshold,labelsOut,userLabel);
+    
+    sprintf("Confidence: %2f",confidence)
+    gettingDimensions = toc;
+    t_total = gettingDimensions + gettingClusters;
+    %{
+    % Specify the Excel file path
+
+    excelFilePath = 'Static_Experiment_Spreadsheet3.xlsx';
+
+    % Load existing data from the Excel file
+    try
+        existingData = xlsread(excelFilePath);
+    catch
+        % If the file doesn't exist or is empty, create a new matrix
+        existingData = [];
+    end
+    
+    % Generate the new row of data (modify this part according to your data)
+    newRowData = [numFrames, numNeighbors, threshold, confidence, t_total, dims(1), dims(2), dims(3)]; % Example data
+    
+    % Append the new row to the existing data
+    updatedData = [existingData; newRowData];
+    
+    % Write the updated data back to the Excel file
+    xlswrite(excelFilePath, updatedData);
+    %}
+end
 
 
-figure
-
-pcshowpair(ptCloudRotated,manyPtClouds{frame1})
 
 
-
-
-
-
-
+%}
 %=================================================================================
 %This function takes in a point clouds and simulates movement of the LiDAR
 %sensor
 function [rotatedPtClouds, t_ptCloud] = createMotionFrames(ptCloud, positions, angles, t_IMU)
-       
+        angles = angles*180/(pi);
         rotatedPtClouds{1} = ptCloud;
         j = 2;
         t_ptCloud(1) = t_IMU(1);
@@ -112,9 +148,8 @@ function [rotatedPtClouds, t_ptCloud] = createMotionFrames(ptCloud, positions, a
 
 end
  
-
-function cubeOut = cubeGen(length,breadth, height, trans, rots)
-        error = 0.02;
+function cubeOut = cubeGen(length,breadth, height, trans, rots,numPoints,error)
+        
        
         %First create the top and the bottom
         %==========================================================================
@@ -122,9 +157,8 @@ function cubeOut = cubeGen(length,breadth, height, trans, rots)
         planePoint = [length/2, breadth/2, 0];  % A point on the plane (center of the plane)
         planePoint2 = [length/2, breadth/2, height];
         
-        % Define the number of random points you want to generate
-        numPoints = 1000;
-        
+
+       
         % Generate random coordinates within the specified plane
         randomX = planePoint(1) + (rand(numPoints, 1) - 0.5) * length;
         randomY = planePoint(2) + (rand(numPoints, 1) - 0.5) * breadth;
@@ -150,8 +184,8 @@ function cubeOut = cubeGen(length,breadth, height, trans, rots)
         planePoint3 = [length/2, 0, height/2];  % A point on the plane (center of the plane)
         planePoint4 = [length/2, breadth, height/2];
         
-        % Define the number of random points you want to generate
-        numPoints = 1000;
+    
+      
         
         % Generate random coordinates within the specified plane
         randomX3 = planePoint3(1) + (rand(numPoints, 1) - 0.5) * length;
@@ -179,7 +213,7 @@ function cubeOut = cubeGen(length,breadth, height, trans, rots)
         planePoint6 = [length, breadth/2, height/2];
         
         % Define the number of random points you want to generate
-        numPoints = 1000;
+
         
         % Generate random coordinates within the specified plane
         randomX5 = planePoint5(1) * ones(numPoints, 1);
@@ -215,22 +249,34 @@ function cubeOut = cubeGen(length,breadth, height, trans, rots)
 end
 
 
-function cubeSceneOut = cubeScene(lengths, breadths, heights, translations, rotations)
+function cubeSceneOut = cubeScene(lengths, breadths, heights, translations, rotations, densities, errors)
 
-
+        numPoints = 20000;
+        length = 2.5;
+        breadth = 3;
+        
 
         for i = 1: size(translations,1)
             if i == 1
                 
-                cubeSceneOut = cubeGen(lengths(i), breadths(i), heights(i), translations(i,:),rotations(i,:));
+                cubeSceneOut = cubeGen(lengths(i), breadths(i), heights(i), translations(i,:),rotations(i,:), densities(i), errors(i));
 
 
             else
-                cube = cubeGen(lengths(i), breadths(i), heights(i), translations(i,:), rotations(i,:));
+                cube = cubeGen(lengths(i), breadths(i), heights(i), translations(i,:), rotations(i,:), densities(i), errors(i));
             
                 cubeSceneOut = pcmerge(cubeSceneOut, cube, 0.01);
             end
         end
+                
+        planePoint = [1.25, 1.5, 0];  % A point on the plane (center of the plane)
+        randomX = planePoint(1) + (rand(numPoints, 1) - 0.5) * length;
+        randomY = planePoint(2) + (rand(numPoints, 1) - 0.5) * breadth;
+        randomZ = planePoint(3) * ones(numPoints, 1);  % Points are constrained to the plane
+
+        ground = pointCloud([randomX, randomY, randomZ]);
+        cubeSceneOut = pcmerge(ground,cubeSceneOut,0.01);
+
+
 
 end
-

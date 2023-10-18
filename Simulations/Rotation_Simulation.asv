@@ -1,26 +1,71 @@
-addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions')
-numNeighbors = 3;
+addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions');
+load('myFilter')
+sampling_rate = 200;
+amplitiude = 0.4;
+duration = 10;
+freq = 0.2;
 
-threshold = 1;
+% Specify the mean and standard deviation of the Gaussian noise
+mean_noise = 0;        % Mean of the Gaussian noise
+std_deviation = 0.1;   % Standard deviation of the Gaussian noise
+                                                      
+t_IMU = 0:1/sampling_rate:duration;
 
-%===================================================
-%Creating scene
+
+angularVelZ = amplitiude*(2*pi*freq)*cos(2*pi*freq*t_IMU);
+
+angularVelZ = transpose(angularVelZ);
+
+% Generate Gaussian noise
+noise = std_deviation * randn(size(angularVelZ)) + mean_noise;
+
+% Add the noise to the original data
+%LinearAccelerationZ = LinearAccelerationZ + noise;
+
+angularVelZ = angularVelZ + noise;
+
+figure
+plot(t_IMU,angularVelZ)
+xlabel("time [s]")
+
+
+angY = cumtrapz(t_IMU,angularVelZ);
+angX = zeros(size(t_IMU,2),1);
+angZ = zeros(size(t_IMU,2),1);
+
+figure
+plot(angY)
+
+
+positions = [angX,angX,angX]; %All zeros
+
+angles = [angX,angY,angZ];
+
+%angZInt = cumtrapz(t,angularVelZ);
+
+
+%======================================================================
+%Creating Scene
+
 densities = [1000 800 2000 400 100];
 
 error = [0 0.01 0.02 0.03 0.04];
-
 rotations = [0 0 0; 0 0 30; 0 0 67; 0 0 21; 0 0 70];
 
 translations = [1.5 0.5 0; 0.3 0.2 0; 1 1.5 0; 0.1 2.5 0; 2 2 0];
+
 
 lengths = [0.2 0.3 0.1 0.5 0.4];
 breadths = [0.3 0.2 0.4 0.2 0.5];
 heights = [0.5 0.3 0.3 0.2 0.1];
 
 
-ptCloud = cubeScene(lengths,breadths,heights,translations,rotations,densities, error);
+ptCloud = cubeScene(lengths,breadths,heights,translations,rotations,densities,error);
+
+[manyPtClouds, t_ptCloud] = createMotionFrames(ptCloud,positions,angles, t_IMU);
+
 figure
-pcshow(ptCloud)
+pcshow(pccat([manyPtClouds{1}, manyPtClouds{3}, manyPtClouds{5}, manyPtClouds{7}, manyPtClouds{9}, manyPtClouds{11}, manyPtClouds{13}, manyPtClouds{15}, manyPtClouds{17}, manyPtClouds{19}]))
 ax = gca;
 
 % Set the axis line width (make them thicker)
@@ -30,8 +75,12 @@ ax.LineWidth = 2; % Change this value to your desired line width
 xlabel('X-axis [m]');
 ylabel('Y-axis [m]');
 zlabel('Z-axis [m]');
-%=======================================================================
-[labelsOut, segmentedPtCloud]= getClusters(ptCloud,referenceVector=[0,0,0]);
+
+%=========================================================================================
+
+ptCloudICP = ICP_IMU_Compensation(manyPtClouds,t_ptCloud,angles,t_IMU,1,10);
+
+[labelsOut, segmentedPtCloud]= getClusters(ptCloudICP,referenceVector=[0,0,0]);
 
 userLabel = 1;
 
@@ -48,7 +97,7 @@ while userLabel ~= 0
     
     sprintf("Confidence: %2f",confidence)
     gettingDimensions = toc;
-  
+    t_total = gettingDimensions + gettingClusters;
     %{
     % Specify the Excel file path
 
@@ -73,11 +122,32 @@ while userLabel ~= 0
     %}
 end
 
-%==========================================================================
-%Functions
-%==========================================================================
 
 
+
+%}
+%=================================================================================
+%This function takes in a point clouds and simulates movement of the LiDAR
+%sensor
+function [rotatedPtClouds, t_ptCloud] = createMotionFrames(ptCloud, positions, angles, t_IMU)
+        angles = angles*180/(pi);
+        rotatedPtClouds{1} = ptCloud;
+        j = 2;
+        t_ptCloud(1) = t_IMU(1);
+        for i = 2:size(positions,1)
+            
+            if mod(i,20) == 0
+                
+                tform = rigidtform3d(angles(i,:),positions(i,:));
+                rotatedPtClouds{j} = pctransform(ptCloud,tform);
+                t_ptCloud(j) = t_IMU(i);
+                j = j + 1;
+            end
+        end
+
+
+end
+ 
 function cubeOut = cubeGen(length,breadth, height, trans, rots,numPoints,error)
         
        
@@ -177,7 +247,6 @@ function cubeOut = cubeGen(length,breadth, height, trans, rots,numPoints,error)
 
 
 end
-
 
 
 function cubeSceneOut = cubeScene(lengths, breadths, heights, translations, rotations, densities, errors)

@@ -1,8 +1,5 @@
 addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions')
 numNeighbors = 3;
-
-threshold = 1;
-
 %===================================================
 %Creating scene
 densities = [1000 800 2000 400 100];
@@ -27,9 +24,9 @@ ax = gca;
 ax.LineWidth = 2; % Change this value to your desired line width
 
 % Optionally, set other axis properties, such as labels, titles, etc.
-xlabel('X-axis [m]');
-ylabel('Y-axis [m]');
-zlabel('Z-axis [m]');
+xlabel('X-axis');
+ylabel('Y-axis');
+zlabel('Z-axis');
 %=======================================================================
 [labelsOut, segmentedPtCloud]= getClusters(ptCloud,referenceVector=[0,0,0]);
 
@@ -48,7 +45,7 @@ while userLabel ~= 0
     
     sprintf("Confidence: %2f",confidence)
     gettingDimensions = toc;
-  
+    t_total = gettingDimensions + gettingClusters;
     %{
     % Specify the Excel file path
 
@@ -182,10 +179,7 @@ end
 
 function cubeSceneOut = cubeScene(lengths, breadths, heights, translations, rotations, densities, errors)
 
-        numPoints = 20000;
-        length = 2.5;
-        breadth = 3;
-        
+
 
         for i = 1: size(translations,1)
             if i == 1
@@ -200,7 +194,7 @@ function cubeSceneOut = cubeScene(lengths, breadths, heights, translations, rota
             end
         end
                 
-        planePoint = [1.25, 1.5, 0];  % A point on the plane (center of the plane)
+        planePoint = [1, 2, 0];  % A point on the plane (center of the plane)
         randomX = planePoint(1) + (rand(numPoints, 1) - 0.5) * length;
         randomY = planePoint(2) + (rand(numPoints, 1) - 0.5) * breadth;
         randomZ = planePoint(3) * ones(numPoints, 1);  % Points are constrained to the plane

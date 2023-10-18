@@ -36,6 +36,15 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, threshold ,l
     %Show the selected cluster
     figure
     pcshow(sepCluster,"MarkerSize",50)
+    ax = gca;
+    
+    % Set the axis line width (make them thicker)
+    ax.LineWidth = 2; % Change this value to your desired line width
+    
+    % Optionally, set other axis properties, such as labels, titles, etc.
+    xlabel('X-axis [m]');
+    ylabel('Y-axis [m]');
+    zlabel('Z-axis [m]');
     hold on
    
 

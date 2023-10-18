@@ -3,7 +3,7 @@
 %Author: Daniel Jones
 %Date: 29th September 2023
 tic;
-numFrames = 80;
+numFrames = 10;
 numNeighbors = 100;
 threshold = 1;
 
@@ -13,9 +13,16 @@ addpath("C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\Data\Stat
 
 [timeStamps, manyPtClouds, ptCloudMess] = ptCloudCell("2023-09-12-11-47-32.bag",10,numFrames,1);
 
-%figure
-%pcshow(ptCloudMess)
+figure
+pcshow(ptCloudMess)
+title("Merged")
+ptCloudArray = [manyPtClouds{1},manyPtClouds{2},manyPtClouds{3},manyPtClouds{4},manyPtClouds{5},manyPtClouds{6},manyPtClouds{7},manyPtClouds{8},manyPtClouds{9},manyPtClouds{10}];
 
+
+
+figure
+pcshow(pccat(ptCloudArray))
+title("Cat")
 %ptCloudICP = ICPCompensation(manyPtClouds,1,numFrames);
 
 %Reducing area of interest by inspection

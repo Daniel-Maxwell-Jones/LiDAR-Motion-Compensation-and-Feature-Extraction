@@ -94,9 +94,9 @@ function [labelsOut,ptCloudOut] = getClusters(ptCloud,options)
     ax.LineWidth = 2; % Change this value to your desired line width
     
     % Optionally, set other axis properties, such as labels, titles, etc.
-    xlabel('X-axis');
-    ylabel('Y-axis');
-    zlabel('Z-axis');
+    xlabel('X-axis [m]');
+    ylabel('Y-axis [m]');
+    zlabel('Z-axis [m]');
     hold off
     ptCloudOut = remainPtCloud;
 end
