@@ -5,14 +5,14 @@ algorithm
 %Author: Daniel Jones
 %Date: 4th October 2023
 tic;
-numFrames = 15;
-numNeighbors = 100;
+numFrames = 50;
+numNeighbors = 500;
 threshold = 1;
 
 addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\Data\Dynamic_data');
 addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions')
-load('2023-09-25-13-19-56.mat')
-[t_PointCloud,manyPtClouds,ptCloudMess] = ptCloudCell('2023-09-25-13-19-56.bag',55, numFrames, 1);
+load('2023-09-25-13-27-08.mat')
+[t_PointCloud,manyPtClouds,ptCloudMess] = ptCloudCell('2023-09-25-13-27-08.bag',1, numFrames, 1);
 t_IMU = timeOmegaY-timeOmegaY(1);
 
 t_PointCloud = t_PointCloud - t_PointCloud(1);
@@ -28,19 +28,80 @@ angZ = rad2deg(angZ);
 
 angles = [angX angY angZ];
 
+velX = cumtrapz(t_IMU,transpose(accX));
+posX = cumtrapz(t_IMU,velX);
+
+velY = cumtrapz(t_IMU,transpose(accY));
+posY = cumtrapz(t_IMU,velY);
+
+
+velZ = cumtrapz(t_IMU,transpose(9.8*(accZ-1)));
+posZ = cumtrapz(t_IMU,velZ);
+nill = zeros(size(angY));
+positions = [nill nill nill];
+
+figure
+plot(t_IMU,omegaY,LineWidth=3)
+xlabel("time [s]")
+ylabel("Angular velocity [rad/s]")
+ax = gca;
+ax.FontSize = 18;
+set(ax, 'FontWeight', 'bold');
+
+figure
+plot(t_IMU,9.8*(accZ-1),LineWidth=3)
+xlabel("time [s]")
+ylabel("Linear Acceleration [m/s^2]")
+ax = gca;
+ax.FontSize = 18;
+set(ax, 'FontWeight', 'bold');
+
+figure
+plot(t_IMU,angY,LineWidth=3)
+xlabel("time [s]")
+ylabel("Angular position [rad]")
+ax = gca;
+ax.FontSize = 18;
+set(ax, 'FontWeight', 'bold');
+
+figure
+plot(t_IMU,posZ,LineWidth=3)
+xlabel("time [s]")
+ylabel("Linear Position [m]")
+ax = gca;
+ax.FontSize = 18;
+set(ax, 'FontWeight', 'bold');
+
+IMU = [angles positions];
+
 figure
 pcshow(ptCloudMess,"MarkerSize",20)
+ax = gca;
+ax.FontSize = 14;
+set(ax, 'FontWeight', 'bold');
+ax.LineWidth = 3; % Change this value to your desired line width
 
-ptCloudICP = ICP_IMU_Compensation(manyPtClouds,t_PointCloud,angles,t_IMU,1, numFrames);
+% Optionally, set other axis properties, such as labels, titles, etc.
+xlabel('X-axis [m]');
+ylabel('Y-axis [m]');
+zlabel('Z-axis [m]');
+
+ptCloudICP = ICP_IMU_Compensation(manyPtClouds,t_PointCloud,IMU,t_IMU,1, numFrames);
 
 %ptCloudICP = ICPCompensation(manyPtClouds,1,numFrames);
 
 
 figure
 pcshow(ptCloudICP,"MarkerSize",20);
-xlabel("x-axis")
-ylabel("y-axis")
-zlabel("z-axis")
+ax = gca;
+ax.FontSize = 14;
+set(ax, 'FontWeight', 'bold');
+ax.LineWidth = 3; % Change this value to your desired line width
+
+% Optionally, set other axis properties, such as labels, titles, etc.
+xlabel('X-axis [m]');
+ylabel('Y-axis [m]');
+zlabel('Z-axis [m]');
 
 
 roi = [1.5,5,-2,2,-inf,1];

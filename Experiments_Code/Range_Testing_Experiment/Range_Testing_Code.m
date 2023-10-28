@@ -3,17 +3,17 @@
 %Author: Daniel Jones
 %Date: 29th September 2023
 tic;
-numFrames = 300; %at 100 frames the noise points from the floor plane affect clustering
-numNeighbors = 10;
+numFrames = 50; %at 100 frames the noise points from the floor plane affect clustering
+numNeighbors = 100;
 threshold = 1;
 
 addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions')
 addpath("C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\Data\Range_Data")
 
 
-[timeStamps, manyPtClouds, ptCloudMess] = ptCloudCell("2023-09-27-10-07-58.bag",1,numFrames,1);
+[timeStamps, manyPtClouds, ptCloudMess] = ptCloudCell("2023-09-27-10-12-45.bag",1,numFrames,1);
 
-roi = [10,75,-20,20,-inf,inf];
+roi = [20,59,-20,20,-inf,inf];
 
 indices = findPointsInROI(ptCloudMess,roi);
 
@@ -23,12 +23,18 @@ tform = rigidtform3d([-2 3 0],[0 0 0]);
 ptCloudMess = pctransform(ptCloudMess,tform);
 figure 
 pcshow(ptCloudMess)
-title("Orginal")
-xlabel("X-axis")
-ylabel("Y-axis")
-zlabel("Z-axis")
+ax = gca;
+ax.FontSize = 14;
+set(ax, 'FontWeight', 'bold');
+% Set the axis line width (make them thicker)
+ax.LineWidth = 3; % Change this value to your desired line width
 
-[labelsOut, segmentedPtCloud]= getClusters(ptCloudMess,minPoints=50,maxDistance=0.2,minDistance=0.5);
+% Optionally, set other axis properties, such as labels, titles, etc.
+xlabel('X-axis [m]');
+ylabel('Y-axis [m]');
+zlabel('Z-axis [m]');
+
+[labelsOut, segmentedPtCloud]= getClusters(ptCloudMess,minPoints=50,maxDistance=0.1,minDistance=0.5);
 gettingClusters = toc;
 userLabel = 1;
 
@@ -45,6 +51,7 @@ while userLabel ~= 0
     
     sprintf("Confidence: %2f",confidence)
     gettingDimensions = toc;
+    %{
     t_total = gettingDimensions + gettingClusters;
     
     % Specify the Excel file path
@@ -67,5 +74,5 @@ while userLabel ~= 0
     
     % Write the updated data back to the Excel file
     xlswrite(excelFilePath, updatedData);
-    
+    %}
 end

@@ -21,7 +21,7 @@ function tform = IMUCompensation(ptT1, ptT2, IMU, t_IMU)
     %Obtain the difference between those IMU readings
     imuDiff = imu2 - imu1;
     
-    tform = rigidtform3d(imuDiff,[0 0 0]);
+    tform = rigidtform3d(imuDiff(1:3),imuDiff(4:6));
 
 
 end

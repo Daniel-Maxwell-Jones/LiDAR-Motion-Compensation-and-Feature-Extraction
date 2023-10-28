@@ -3,7 +3,7 @@
 %Author: Daniel Jones
 %Date: 29th September 2023
 tic;
-numFrames = 10;
+numFrames = 50;
 numNeighbors = 100;
 threshold = 1;
 
@@ -15,14 +15,19 @@ addpath("C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\Data\Stat
 
 figure
 pcshow(ptCloudMess)
-title("Merged")
 ptCloudArray = [manyPtClouds{1},manyPtClouds{2},manyPtClouds{3},manyPtClouds{4},manyPtClouds{5},manyPtClouds{6},manyPtClouds{7},manyPtClouds{8},manyPtClouds{9},manyPtClouds{10}];
+ax = gca;
+ax.FontSize = 14;
+set(ax, 'FontWeight', 'bold');
+% Set the axis line width (make them thicker)
+ax.LineWidth = 3; % Change this value to your desired line width
+
+% Optionally, set other axis properties, such as labels, titles, etc.
+xlabel('X-axis [m]');
+ylabel('Y-axis [m]');
+zlabel('Z-axis [m]');
 
 
-
-figure
-pcshow(pccat(ptCloudArray))
-title("Cat")
 %ptCloudICP = ICPCompensation(manyPtClouds,1,numFrames);
 
 %Reducing area of interest by inspection

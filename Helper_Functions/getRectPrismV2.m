@@ -22,6 +22,7 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, threshold ,l
     sepCluster = pcdenoise(sepCluster,"NumNeighbors",numNeighbors,"Threshold",threshold);
     
     %show the effectiveness of filtering by showing before and after
+    
     figure
     pcshowpair(validCluster,sepCluster,"MarkerSize",50)
     ax = gca;
@@ -33,6 +34,7 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, threshold ,l
     xlabel('X-axis');
     ylabel('Y-axis');
     zlabel('Z-axis');
+    %legend('Before filter','After filter',Color="white");
     %Show the selected cluster
     figure
     pcshow(sepCluster,"MarkerSize",50)
@@ -50,6 +52,7 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, threshold ,l
 
     %The following code plots the suspected vertices of the rectangular
     %prisms by drawing read lines between each of the vertices.
+   
     corners = verticedetector(sepCluster);
 
     p = verticesPlot(sepCluster, corners);
@@ -70,6 +73,23 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, threshold ,l
     plot3([p(4,1), p(8,1)], [p(4,2), p(8,2)], [p(4,3), p(8,3)], 'r', 'LineWidth', 2);
     
 
+
+    
+    x = p(:,1);
+    y = p(:,2);
+    z = p(:,3);
+    scatter3(x, y, z, 50,'white','filled');
+    ax = gca;
+    
+    % Set the axis line width (make them thicker)
+    ax.LineWidth = 2; % Change this value to your desired line width
+    
+    % Optionally, set other axis properties, such as labels, titles, etc.
+    xlabel('X-axis');
+    ylabel('Y-axis');
+    zlabel('Z-axis');
+    hold off
+    
     %Obtain the confidence of the measurement based on how closely the
     %object represents a rectangle
     ang1 = angBetweenVectors((p(1,1)-p(5,1)), (p(1,1)-p(7,1)), (p(1,2) - p(5,2)), (p(1,2)-p(7,2)));
@@ -87,23 +107,6 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, threshold ,l
     conf4 = closeness_to_90(ang4);
 
     confidence = (conf1+conf2+conf3+conf4)*100/4;
-    
-    x = p(:,1);
-    y = p(:,2);
-    z = p(:,3);
-    scatter3(x, y, z, 50,'white','filled');
-    ax = gca;
-    
-    % Set the axis line width (make them thicker)
-    ax.LineWidth = 2; % Change this value to your desired line width
-    
-    % Optionally, set other axis properties, such as labels, titles, etc.
-    xlabel('X-axis');
-    ylabel('Y-axis');
-    zlabel('Z-axis');
-    hold off
-
-
     %==============================================================
     %Extracting Parameters 
    

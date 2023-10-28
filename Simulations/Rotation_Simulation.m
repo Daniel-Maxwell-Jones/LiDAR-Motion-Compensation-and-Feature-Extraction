@@ -1,9 +1,11 @@
 addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions');
 load('myFilter')
 sampling_rate = 200;
-amplitiude = 0.4;
+amplitiude_Rot = 0.4;
+amplitiude_Trans = 1;
 duration = 10;
-freq = 0.2;
+freq_Rot = 0.2;
+freq_Trans = 0.1;
 
 % Specify the mean and standard deviation of the Gaussian noise
 mean_noise = 0;        % Mean of the Gaussian noise
@@ -12,35 +14,74 @@ std_deviation = 0.1;   % Standard deviation of the Gaussian noise
 t_IMU = 0:1/sampling_rate:duration;
 
 
-angularVelZ = amplitiude*(2*pi*freq)*cos(2*pi*freq*t_IMU);
+angularVelY = amplitiude_Rot*(2*pi*freq_Rot)*cos(2*pi*freq_Rot*t_IMU);
 
-angularVelZ = transpose(angularVelZ);
+angularVelY = transpose(angularVelY);
+
+angYTruth = amplitiude_Rot*sin(2*pi*freq_Rot*t_IMU);
+angYTruth = transpose(angYTruth);
+
+linearAccZ = -amplitiude_Trans*(2*pi*freq_Trans)^2*sin(2*pi*freq_Trans*t_IMU);
+linearAccZ = transpose(linearAccZ);
+linearVelZ = cumtrapz(t_IMU,linearAccZ);
+
+linearPosZ = cumtrapz(t_IMU,linearVelZ);
+
+linearPosZTruth = amplitiude_Trans*sin(2*pi*freq_Trans*t_IMU);
+linearPosZTruth = transpose(linearPosZTruth);
 
 % Generate Gaussian noise
-noise = std_deviation * randn(size(angularVelZ)) + mean_noise;
+noise_Rot = std_deviation * randn(size(angularVelY)) + mean_noise;
+
+noise_Trans = std_deviation * randn(size(linearAccZ)) + mean_noise;
 
 % Add the noise to the original data
 %LinearAccelerationZ = LinearAccelerationZ + noise;
 
-angularVelZ = angularVelZ + noise;
+angularVelY = angularVelY + noise_Rot;
+linearAccZ = linearAccZ + noise_Trans;
 
 figure
-plot(t_IMU,angularVelZ)
+plot(t_IMU,angularVelY,LineWidth=3)
 xlabel("time [s]")
-ylabel("Angular Velocity [rad/s]")
+ylabel("Angular velocity [rad/s]")
+ax = gca;
+ax.FontSize = 18;
+set(ax, 'FontWeight', 'bold');
 
-angY = cumtrapz(t_IMU,angularVelZ);
+figure
+plot(t_IMU,linearAccZ,LineWidth=3)
+xlabel("time [s]")
+ylabel("Linear Acceleration [m/s^2]")
+ax = gca;
+ax.FontSize = 18;
+set(ax, 'FontWeight', 'bold');
+
+angY = cumtrapz(t_IMU,angularVelY);
 angX = zeros(size(t_IMU,2),1);
 angZ = zeros(size(t_IMU,2),1);
 
 figure
-plot(angY)
+plot(t_IMU,angY,LineWidth=3)
+xlabel("time [s]")
+ylabel("Angular position [rad]")
+ax = gca;
+ax.FontSize = 18;
+set(ax, 'FontWeight', 'bold');
 
+figure
+plot(t_IMU,linearPosZ,LineWidth=3)
+xlabel("time [s]")
+ylabel("Linear Position [m]")
+ax = gca;
+ax.FontSize = 18;
+set(ax, 'FontWeight', 'bold');
 
-positions = [angX,angX,angX]; %All zeros
+positions = [angX,angX,linearPosZTruth];
 
-angles = [angX,angY,angZ];
-
+angles = [angX,angYTruth,angZ];
+IMU = [angX,angY,angZ,angX,angX,linearPosZ];
+IMU_Truth = [angles positions];
 %angZInt = cumtrapz(t,angularVelZ);
 
 
@@ -52,12 +93,12 @@ densities = [1000 800 2000 400 100];
 error = [0 0.01 0.02 0.03 0.04];
 rotations = [0 0 0; 0 0 30; 0 0 67; 0 0 21; 0 0 70];
 
-translations = [1.5 0.5 0; 0.3 0.2 0; 1 1.5 0; 0.1 2.5 0; 2 2 0];
+translations = [1 0.3 0; 2 1 0; 1.5 1.5 0; 1 2.5 0; 0.4 2 0];
 
 
-lengths = [0.2 0.3 0.1 0.5 0.4];
-breadths = [0.3 0.2 0.4 0.2 0.5];
-heights = [0.5 0.3 0.3 0.2 0.1];
+lengths = [0.1 0.3 0.4 0.3 0.2];
+breadths = [0.2 0.1 0.4 0.5 0.5];
+heights = [0.5 0.3 0.4 0.7 0.5];
 
 
 ptCloud = cubeScene(lengths,breadths,heights,translations,rotations,densities,error);
@@ -67,20 +108,35 @@ ptCloud = cubeScene(lengths,breadths,heights,translations,rotations,densities,er
 figure
 pcshow(pccat([manyPtClouds{1}, manyPtClouds{3}, manyPtClouds{5}, manyPtClouds{7}, manyPtClouds{9}, manyPtClouds{11}, manyPtClouds{13}, manyPtClouds{15}, manyPtClouds{17}, manyPtClouds{19}]))
 ax = gca;
-
-% Set the axis line width (make them thicker)
-ax.LineWidth = 2; % Change this value to your desired line width
+ax.FontSize = 14;
+set(ax, 'FontWeight', 'bold');
+ax.LineWidth = 3; % Change this value to your desired line width
 
 % Optionally, set other axis properties, such as labels, titles, etc.
 xlabel('X-axis [m]');
 ylabel('Y-axis [m]');
 zlabel('Z-axis [m]');
 
+
+
+
 %=========================================================================================
 
-ptCloudICP = ICP_IMU_Compensation(manyPtClouds,t_ptCloud,angles,t_IMU,1,10);
+ptCloudICP = ICP_IMU_Compensation(manyPtClouds,t_ptCloud,IMU,t_IMU,1,10);
+figure
+pcshow(ptCloudICP)
+ax = gca;
+ax.FontSize = 14;
+ax.LineWidth = 3; % Change this value to your desired line width
+set(ax, 'FontWeight', 'bold');
 
-[labelsOut, segmentedPtCloud]= getClusters(ptCloudICP,referenceVector=[0,0,0]);
+% Optionally, set other axis properties, such as labels, titles, etc.
+xlabel('X-axis [m]');
+ylabel('Y-axis [m]');
+zlabel('Z-axis [m]');
+
+
+[labelsOut, segmentedPtCloud]= getClusters(ptCloudICP,referenceVector=[0,0,0],minDistance=0.2,maxDistance=0.01);
 
 userLabel = 1;
 
