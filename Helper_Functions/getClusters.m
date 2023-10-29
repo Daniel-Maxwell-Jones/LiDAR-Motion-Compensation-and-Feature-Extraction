@@ -80,7 +80,7 @@ function [labelsOut,ptCloudOut] = getClusters(ptCloud,options)
 
         cluster.Color = colour(k,:);
         
-        pcshow(cluster,"MarkerSize",10)
+        pcshow(cluster,"MarkerSize",50)
         legendLabels{k} = sprintf("Object %d", k);
         hold on
         
@@ -89,10 +89,10 @@ function [labelsOut,ptCloudOut] = getClusters(ptCloud,options)
     legend(legendLabels,"Color","white")
     % Get the current axes handle
     ax = gca;
-    ax.FontSize = 14;
+    ax.FontSize = 20;
     set(ax, 'FontWeight', 'bold');
     % Set the axis line width (make them thicker)
-    ax.LineWidth = 3; % Change this value to your desired line width
+    ax.LineWidth = 5; % Change this value to your desired line width
     
     % Optionally, set other axis properties, such as labels, titles, etc.
     xlabel('X-axis [m]');

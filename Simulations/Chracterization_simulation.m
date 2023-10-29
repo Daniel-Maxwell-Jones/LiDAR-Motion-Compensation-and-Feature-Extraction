@@ -39,7 +39,7 @@ zlabel('Z-axis [m]');
 tic;
 [labelsOut, segmentedPtCloud]= getClusters(ptCloud,referenceVector=[0,0,0],minDistance=0.3,maxDistance=0.01);
 gettingClusters = toc;
-userLabel = 1;
+userLabel = 11;
 k = 1;
 b = zeros(20,1);
 l = zeros(20,1);

@@ -4,9 +4,10 @@ sampling_rate = 200;
 amplitiude_Rot = 0.4;
 amplitiude_Trans = 1;
 duration = 10;
-freq_Rot = 0.2;
+freq_Rot = 0.5;
 freq_Trans = 0.1;
-
+numNeighbors = 10;
+threshold = 1;
 % Specify the mean and standard deviation of the Gaussian noise
 mean_noise = 0;        % Mean of the Gaussian noise
 std_deviation = 0.1;   % Standard deviation of the Gaussian noise
@@ -40,7 +41,7 @@ noise_Trans = std_deviation * randn(size(linearAccZ)) + mean_noise;
 
 angularVelY = angularVelY + noise_Rot;
 linearAccZ = linearAccZ + noise_Trans;
-
+%{
 figure
 plot(t_IMU,angularVelY,LineWidth=3)
 xlabel("time [s]")
@@ -56,11 +57,11 @@ ylabel("Linear Acceleration [m/s^2]")
 ax = gca;
 ax.FontSize = 18;
 set(ax, 'FontWeight', 'bold');
-
+%}
 angY = cumtrapz(t_IMU,angularVelY);
 angX = zeros(size(t_IMU,2),1);
 angZ = zeros(size(t_IMU,2),1);
-
+%{
 figure
 plot(t_IMU,angY,LineWidth=3)
 xlabel("time [s]")
@@ -76,7 +77,7 @@ ylabel("Linear Position [m]")
 ax = gca;
 ax.FontSize = 18;
 set(ax, 'FontWeight', 'bold');
-
+%}
 positions = [angX,angX,linearPosZTruth];
 
 angles = [angX,angYTruth,angZ];
@@ -108,9 +109,9 @@ ptCloud = cubeScene(lengths,breadths,heights,translations,rotations,densities,er
 figure
 pcshow(pccat([manyPtClouds{1}, manyPtClouds{3}, manyPtClouds{5}, manyPtClouds{7}, manyPtClouds{9}, manyPtClouds{11}, manyPtClouds{13}, manyPtClouds{15}, manyPtClouds{17}, manyPtClouds{19}]))
 ax = gca;
-ax.FontSize = 14;
+ax.FontSize = 20;
 set(ax, 'FontWeight', 'bold');
-ax.LineWidth = 3; % Change this value to your desired line width
+ax.LineWidth = 5; % Change this value to your desired line width
 
 % Optionally, set other axis properties, such as labels, titles, etc.
 xlabel('X-axis [m]');
@@ -124,10 +125,10 @@ zlabel('Z-axis [m]');
 
 ptCloudICP = ICP_IMU_Compensation(manyPtClouds,t_ptCloud,IMU,t_IMU,1,10);
 figure
-pcshow(ptCloudICP)
+pcshow(ptCloudICP,MarkerSize=50)
 ax = gca;
-ax.FontSize = 14;
-ax.LineWidth = 3; % Change this value to your desired line width
+ax.FontSize = 20;
+ax.LineWidth = 5; % Change this value to your desired line width
 set(ax, 'FontWeight', 'bold');
 
 % Optionally, set other axis properties, such as labels, titles, etc.
@@ -153,7 +154,7 @@ while userLabel ~= 0
     
     sprintf("Confidence: %2f",confidence)
     gettingDimensions = toc;
-    t_total = gettingDimensions + gettingClusters;
+    %t_total = gettingDimensions + gettingClusters;
     %{
     % Specify the Excel file path
 

@@ -26,9 +26,10 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, threshold ,l
     figure
     pcshowpair(validCluster,sepCluster,"MarkerSize",50)
     ax = gca;
-    
+    ax.FontSize = 16;
+    set(ax, 'FontWeight', 'bold');
     % Set the axis line width (make them thicker)
-    ax.LineWidth = 2; % Change this value to your desired line width
+    ax.LineWidth = 3; % Change this value to your desired line width
     
     % Optionally, set other axis properties, such as labels, titles, etc.
     xlabel('X-axis');
@@ -39,10 +40,10 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, threshold ,l
     figure
     pcshow(sepCluster,"MarkerSize",50)
     ax = gca;
-    
+    ax.FontSize = 16;
+    set(ax, 'FontWeight', 'bold');
     % Set the axis line width (make them thicker)
-    ax.LineWidth = 2; % Change this value to your desired line width
-    
+    ax.LineWidth = 3; % Change this value to your desired line width
     % Optionally, set other axis properties, such as labels, titles, etc.
     xlabel('X-axis [m]');
     ylabel('Y-axis [m]');
@@ -57,37 +58,26 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, threshold ,l
 
     p = verticesPlot(sepCluster, corners);
 
-    plot3([p(1,1), p(2,1)], [p(1,2), p(2,2)], [p(1,3), p(2,3)], 'r', 'LineWidth', 2);
-    plot3([p(3,1), p(4,1)], [p(3,2), p(4,2)], [p(3,3), p(4,3)], 'r', 'LineWidth', 2);
-    plot3([p(5,1), p(6,1)], [p(5,2), p(6,2)], [p(5,3), p(6,3)], 'r', 'LineWidth', 2);
-    plot3([p(7,1), p(8,1)], [p(7,2), p(8,2)], [p(7,3), p(8,3)], 'r', 'LineWidth', 2);
+    plot3([p(1,1), p(2,1)], [p(1,2), p(2,2)], [p(1,3), p(2,3)], 'r', 'LineWidth', 3);
+    plot3([p(3,1), p(4,1)], [p(3,2), p(4,2)], [p(3,3), p(4,3)], 'r', 'LineWidth', 3);
+    plot3([p(5,1), p(6,1)], [p(5,2), p(6,2)], [p(5,3), p(6,3)], 'r', 'LineWidth', 3);
+    plot3([p(7,1), p(8,1)], [p(7,2), p(8,2)], [p(7,3), p(8,3)], 'r', 'LineWidth', 3);
     
-    plot3([p(1,1), p(5,1)], [p(1,2), p(5,2)], [p(1,3), p(5,3)], 'r', 'LineWidth', 2);
-    plot3([p(1,1), p(7,1)], [p(1,2), p(7,2)], [p(1,3), p(7,3)], 'r', 'LineWidth', 2);
-    plot3([p(3,1), p(5,1)], [p(3,2), p(5,2)], [p(3,3), p(5,3)], 'r', 'LineWidth', 2);
-    plot3([p(3,1), p(7,1)], [p(3,2), p(7,2)], [p(3,3), p(7,3)], 'r', 'LineWidth', 2);
+    plot3([p(1,1), p(5,1)], [p(1,2), p(5,2)], [p(1,3), p(5,3)], 'r', 'LineWidth', 3);
+    plot3([p(1,1), p(7,1)], [p(1,2), p(7,2)], [p(1,3), p(7,3)], 'r', 'LineWidth', 3);
+    plot3([p(3,1), p(5,1)], [p(3,2), p(5,2)], [p(3,3), p(5,3)], 'r', 'LineWidth', 3);
+    plot3([p(3,1), p(7,1)], [p(3,2), p(7,2)], [p(3,3), p(7,3)], 'r', 'LineWidth', 3);
 
-    plot3([p(2,1), p(6,1)], [p(2,2), p(6,2)], [p(2,3), p(6,3)], 'r', 'LineWidth', 2);
-    plot3([p(2,1), p(8,1)], [p(2,2), p(8,2)], [p(2,3), p(8,3)], 'r', 'LineWidth', 2);
-    plot3([p(4,1), p(6,1)], [p(4,2), p(6,2)], [p(4,3), p(6,3)], 'r', 'LineWidth', 2);
-    plot3([p(4,1), p(8,1)], [p(4,2), p(8,2)], [p(4,3), p(8,3)], 'r', 'LineWidth', 2);
-    
-
-
-    
+    plot3([p(2,1), p(6,1)], [p(2,2), p(6,2)], [p(2,3), p(6,3)], 'r', 'LineWidth', 3);
+    plot3([p(2,1), p(8,1)], [p(2,2), p(8,2)], [p(2,3), p(8,3)], 'r', 'LineWidth', 3);
+    plot3([p(4,1), p(6,1)], [p(4,2), p(6,2)], [p(4,3), p(6,3)], 'r', 'LineWidth', 3);
+    plot3([p(4,1), p(8,1)], [p(4,2), p(8,2)], [p(4,3), p(8,3)], 'r', 'LineWidth', 3);
+        
     x = p(:,1);
     y = p(:,2);
     z = p(:,3);
     scatter3(x, y, z, 50,'white','filled');
-    ax = gca;
-    
-    % Set the axis line width (make them thicker)
-    ax.LineWidth = 2; % Change this value to your desired line width
-    
-    % Optionally, set other axis properties, such as labels, titles, etc.
-    xlabel('X-axis');
-    ylabel('Y-axis');
-    zlabel('Z-axis');
+
     hold off
     
     %Obtain the confidence of the measurement based on how closely the
