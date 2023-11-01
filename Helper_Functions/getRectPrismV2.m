@@ -32,9 +32,9 @@ function [dims, confidence] = getRectPrismV2(ptCloud, numNeighbors, threshold ,l
     ax.LineWidth = 3; % Change this value to your desired line width
     
     % Optionally, set other axis properties, such as labels, titles, etc.
-    xlabel('X-axis');
-    ylabel('Y-axis');
-    zlabel('Z-axis');
+    xlabel('X-axis [m]');
+    ylabel('Y-axis [m]');
+    zlabel('Z-axis [m]');
     %legend('Before filter','After filter',Color="white");
     %Show the selected cluster
     figure

@@ -1,0 +1,187 @@
+%{
+This is the script used to validate the motion compensation aspect of the
+algorithm 
+%}
+%Author: Daniel Jones
+%Date: 4th October 2023
+tic;
+numFrames = 300;
+numNeighbors = 100;
+threshold = 1;
+
+addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\Data\Dynamic_data');
+addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions')
+load('2023-09-25-13-27-08.mat')
+[t_PointCloud,manyPtClouds,ptCloudMess] = ptCloudCell('2023-09-25-13-27-08.bag',1, numFrames, 1);
+t_IMU = timeOmegaY-timeOmegaY(1);
+
+player = pcplayer([0 15],[-5 5],[-2 4]);
+i = 1;
+while isOpen(player)
+     
+     ptCloud = manyPtClouds{i};
+     view(player,ptCloud);
+
+    ax = gca;
+    ax.FontSize = 14;
+    set(ax, 'FontWeight', 'bold');
+    ax.LineWidth = 3; % Change this value to your desired line width
+    
+    % Optionally, set other axis properties, such as labels, titles, etc.
+    xlabel('X-axis [m]');
+    ylabel('Y-axis [m]');
+    zlabel('Z-axis [m]');
+
+     if i == numFrames
+        
+         i = 1;
+
+     else
+
+        i = i + 1;
+        
+     end
+
+     pause(0.05)
+end 
+
+
+
+%{
+t_PointCloud = t_PointCloud - t_PointCloud(1);
+
+angX = cumtrapz(t_IMU,omegaX);
+angX = rad2deg(angX);
+
+angY = cumtrapz(t_IMU,omegaY);
+angY = rad2deg(angY);
+
+angZ = cumtrapz(t_IMU,omegaZ);
+angZ = rad2deg(angZ);
+
+angles = [angX angY angZ];
+
+velX = cumtrapz(t_IMU,transpose(accX));
+posX = cumtrapz(t_IMU,velX);
+
+velY = cumtrapz(t_IMU,transpose(accY));
+posY = cumtrapz(t_IMU,velY);
+
+
+velZ = cumtrapz(t_IMU,transpose(9.8*(accZ-1)));
+posZ = cumtrapz(t_IMU,velZ);
+nill = zeros(size(angY));
+positions = [nill nill nill];
+
+figure
+plot(t_IMU,omegaY,LineWidth=3)
+xlabel("time [s]")
+ylabel("Angular velocity [degrees/s]")
+ax = gca;
+ax.FontSize = 18;
+set(ax, 'FontWeight', 'bold');
+
+figure
+plot(t_IMU,9.8*(accZ-1),LineWidth=3)
+xlabel("time [s]")
+ylabel("Linear Acceleration [m/s^2]")
+ax = gca;
+ax.FontSize = 18;
+set(ax, 'FontWeight', 'bold');
+
+figure
+plot(t_IMU,angY,LineWidth=3)
+xlabel("time [s]")
+ylabel("Angular position [degrees]")
+ax = gca;
+ax.FontSize = 18;
+set(ax, 'FontWeight', 'bold');
+
+figure
+plot(t_IMU,posZ,LineWidth=3)
+xlabel("time [s]")
+ylabel("Linear Position [m]")
+ax = gca;
+ax.FontSize = 18;
+set(ax, 'FontWeight', 'bold');
+
+IMU = [angles positions];
+
+figure
+pcshow(ptCloudMess,"MarkerSize",20)
+ax = gca;
+ax.FontSize = 14;
+set(ax, 'FontWeight', 'bold');
+ax.LineWidth = 3; % Change this value to your desired line width
+
+% Optionally, set other axis properties, such as labels, titles, etc.
+xlabel('X-axis [m]');
+ylabel('Y-axis [m]');
+zlabel('Z-axis [m]');
+
+ptCloudICP = ICP_IMU_Compensation(manyPtClouds,t_PointCloud,IMU,t_IMU,1, numFrames);
+
+%ptCloudICP = ICPCompensation(manyPtClouds,1,numFrames);
+
+
+figure
+pcshow(ptCloudICP,"MarkerSize",20);
+ax = gca;
+ax.FontSize = 14;
+set(ax, 'FontWeight', 'bold');
+ax.LineWidth = 3; % Change this value to your desired line width
+
+% Optionally, set other axis properties, such as labels, titles, etc.
+xlabel('X-axis [m]');
+ylabel('Y-axis [m]');
+zlabel('Z-axis [m]');
+
+
+roi = [1.5,5,-2,2,-inf,1];
+
+indices = findPointsInROI(ptCloudICP,roi);
+
+ptCloudICP = select(ptCloudICP,indices);
+%ptCloudICP = pcdenoise(ptCloudICP,"NumNeighbors",numNeighbors,"Threshold",threshold);
+
+[labelsOut, segmentedPtCloud]= getClusters(ptCloudICP,referenceVector=[0 0 0],minDistance=0.03);
+gettingClusters = toc;
+userLabel = 1;
+
+while userLabel ~= 0
+
+
+    userLabel = input('Enter the number of the object: ');
+    
+    if userLabel == 0 
+        break;
+    end
+    tic;
+   [dims, confidence] = getRectPrismV2(segmentedPtCloud,numNeighbors,threshold,labelsOut,userLabel);
+    gettingDimensions = toc;
+   sprintf("Confidence: %2f",confidence)
+    
+    % Specify the Excel file path
+    
+    excelFilePath = 'Motion_Experiment_HighFilt.xlsx';
+    t_total = gettingClusters + gettingClusters;
+    %{
+    % Load existing data from the Excel file
+    try
+        existingData = xlsread(excelFilePath);
+    catch
+        % If the file doesn't exist or is empty, create a new matrix
+        existingData = [];
+    end
+    
+    % Generate the new row of data (modify this part according to your data)
+    newRowData = [numFrames, numNeighbors, threshold, confidence, t_total, dims(1), dims(2), dims(3)]; % Example data
+    
+    % Append the new row to the existing data
+    updatedData = [existingData; newRowData];
+    
+    % Write the updated data back to the Excel file
+    xlswrite(excelFilePath, updatedData);
+    %}
+end
+%}

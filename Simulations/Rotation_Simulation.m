@@ -1,8 +1,8 @@
 addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions');
 load('myFilter')
 sampling_rate = 200;
-amplitiude_Rot = 0.4;
-amplitiude_Trans = 1;
+amplitiude_Rot = 0.2;
+amplitiude_Trans = 0;
 duration = 10;
 freq_Rot = 0.5;
 freq_Trans = 0.1;
@@ -105,7 +105,32 @@ heights = [0.5 0.3 0.4 0.7 0.5];
 ptCloud = cubeScene(lengths,breadths,heights,translations,rotations,densities,error);
 
 [manyPtClouds, t_ptCloud] = createMotionFrames(ptCloud,positions,angles, t_IMU);
+numFrames = 101;
+player = pcplayer([0 5],[-5 5],[-2 4],AxesVisibility="off",MarkerSize=50);
+i = 1;
+while isOpen(player)
+     
+     ptCloud = manyPtClouds{i};
+     view(player,ptCloud);
 
+
+     if i == numFrames
+        
+         i = 1;
+
+     else
+
+        i = i + 1;
+        
+     end
+
+     pause(0.08)
+end 
+
+
+
+
+%{
 figure
 pcshow(pccat([manyPtClouds{1}, manyPtClouds{3}, manyPtClouds{5}, manyPtClouds{7}, manyPtClouds{9}, manyPtClouds{11}, manyPtClouds{13}, manyPtClouds{15}, manyPtClouds{17}, manyPtClouds{19}]))
 ax = gca;
@@ -180,7 +205,7 @@ while userLabel ~= 0
 end
 
 
-
+%}
 
 %}
 %=================================================================================

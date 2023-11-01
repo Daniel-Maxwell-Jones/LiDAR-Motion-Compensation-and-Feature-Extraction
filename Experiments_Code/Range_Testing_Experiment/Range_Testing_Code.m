@@ -4,14 +4,14 @@
 %Date: 29th September 2023
 tic;
 numFrames = 50; %at 100 frames the noise points from the floor plane affect clustering
-numNeighbors = 100;
+numNeighbors = 500;
 threshold = 1;
 
 addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\LiDAR-Motion-Compensation-and-Feature-Extraction\Helper_Functions')
 addpath("C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\Data\Range_Data")
 
 
-[timeStamps, manyPtClouds, ptCloudMess] = ptCloudCell("2023-09-27-10-12-45.bag",1,numFrames,1);
+[timeStamps, manyPtClouds, ptCloudMess] = ptCloudCell("2023-09-27-10-10-22.bag",1,numFrames,1);
 
 roi = [20,59,-20,20,-inf,inf];
 

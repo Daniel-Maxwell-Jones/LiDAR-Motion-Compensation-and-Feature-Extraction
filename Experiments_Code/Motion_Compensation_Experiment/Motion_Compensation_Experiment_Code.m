@@ -5,8 +5,8 @@ algorithm
 %Author: Daniel Jones
 %Date: 4th October 2023
 tic;
-numFrames = 50;
-numNeighbors = 500;
+numFrames = 300;
+numNeighbors = 100;
 threshold = 1;
 
 addpath('C:\Users\gamin\Desktop\LiDAR_Motion_Comp_Feature_Extract_Repo\Data\Dynamic_data');
@@ -15,6 +15,30 @@ load('2023-09-25-13-27-08.mat')
 [t_PointCloud,manyPtClouds,ptCloudMess] = ptCloudCell('2023-09-25-13-27-08.bag',1, numFrames, 1);
 t_IMU = timeOmegaY-timeOmegaY(1);
 
+player = pcplayer([0 15],[-5 5],[-2 4],AxesVisibility="off",MarkerSize=50);
+i = 1;
+while isOpen(player)
+     
+     ptCloud = manyPtClouds{i};
+     view(player,ptCloud);
+
+
+     if i == numFrames
+        
+         i = 1;
+
+     else
+
+        i = i + 1;
+        
+     end
+
+     pause(0.05)
+end 
+
+
+
+%{
 t_PointCloud = t_PointCloud - t_PointCloud(1);
 
 angX = cumtrapz(t_IMU,omegaX);
@@ -43,7 +67,7 @@ positions = [nill nill nill];
 figure
 plot(t_IMU,omegaY,LineWidth=3)
 xlabel("time [s]")
-ylabel("Angular velocity [rad/s]")
+ylabel("Angular velocity [degrees/s]")
 ax = gca;
 ax.FontSize = 18;
 set(ax, 'FontWeight', 'bold');
@@ -59,7 +83,7 @@ set(ax, 'FontWeight', 'bold');
 figure
 plot(t_IMU,angY,LineWidth=3)
 xlabel("time [s]")
-ylabel("Angular position [rad]")
+ylabel("Angular position [degrees]")
 ax = gca;
 ax.FontSize = 18;
 set(ax, 'FontWeight', 'bold');
@@ -151,3 +175,4 @@ while userLabel ~= 0
     xlswrite(excelFilePath, updatedData);
     %}
 end
+%}
