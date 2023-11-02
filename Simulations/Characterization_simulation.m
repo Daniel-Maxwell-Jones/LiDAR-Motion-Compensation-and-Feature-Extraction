@@ -6,10 +6,12 @@ threshold = 1;
 
 %===================================================
 %Creating scene
+
+%Densities of the point cloud objects
 densities = [200 400 600 800 1000 1200 1400 1600 1800 2000 3000 4000 5000 6000 7000 8000 9000 11000 12000 13000];
-
+%Error of the point cloud objects
 error = [0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05];
-
+%
 rotations = [0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45; 0 0 45];
 translations = [1 2 0; 2 2 0; 3 2 0; 4 2 0; 5 2 0; 6 2 0; 7 2 0; 8 2 0; 9 2 0; 10 2 0; 11 2 0; 12 2 0; 13 2 0; 14 2 0; 15 2 0; 16 2 0; 17 2 0; 18 2 0; 19 2 0; 20 2 0]; 
 %{
@@ -118,7 +120,7 @@ plot(densities,abs(h(2:end)-0.3)*100/0.3)
 %Functions
 %==========================================================================
 
-
+%This function generates a simulated point cloud object
 function cubeOut = cubeGen(length,breadth, height, trans, rots,numPoints,error,noiseScale)
         % Parameters for the triangular distribution
         a = -1;  % Lower bound
